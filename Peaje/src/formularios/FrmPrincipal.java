@@ -5,6 +5,7 @@
 package formularios;
 
 import formulariosInternos.IFrmRegistros;
+import formulariosInternos.IFrmReporte;
 import objetos.Vehiculos;
 import objetos.Peaje;
 import java.util.ArrayList;
@@ -57,6 +58,10 @@ public class FrmPrincipal extends javax.swing.JFrame {
         }
     }
     
+    public ArrayList<Peaje> getRegistros(){
+        return registros;
+    }
+    
     public ArrayList<Vehiculos> getLista(){
         return listaVehiculos;
     }
@@ -106,6 +111,7 @@ public class FrmPrincipal extends javax.swing.JFrame {
         jMenu2.setText("Administrar");
 
         menuReporte.setText("Ver reporte");
+        menuReporte.addActionListener(this::menuReporteActionPerformed);
         jMenu2.add(menuReporte);
 
         jMenuBar1.add(jMenu2);
@@ -139,6 +145,13 @@ public class FrmPrincipal extends javax.swing.JFrame {
         peajeDesktop.add(registro);
         registro.show();
     }//GEN-LAST:event_menuRegistrarActionPerformed
+
+    private void menuReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuReporteActionPerformed
+        // TODO add your handling code here:
+        IFrmReporte reporte = new IFrmReporte(this);
+        peajeDesktop.add(reporte);
+        reporte.show();
+    }//GEN-LAST:event_menuReporteActionPerformed
 
     /**
      * @param args the command line arguments
