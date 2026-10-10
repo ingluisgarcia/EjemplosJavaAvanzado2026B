@@ -5,8 +5,16 @@
 package formulariosInternos;
 
 import formularios.FrmPrincipal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import objetos.InfoConexion;
 import objetos.Peaje;
 
 /**
@@ -19,30 +27,40 @@ public class IFrmReporte extends javax.swing.JInternalFrame {
      * Creates new form IFrmReporte
      */
     
-    FrmPrincipal principal;
-    ArrayList<Peaje> reg;
-    String[] encabezado = {"Placa", "Tipo vehiculo", "Fecha", "Valor pagado"};
+    InfoConexion conexion;
     
-    public IFrmReporte(FrmPrincipal principal) {
+    public IFrmReporte() {
         initComponents();
-        this.principal = principal;
+        conexion = new InfoConexion();
         mostrarInfo();
     }
     
     public void mostrarInfo(){
-        reg = principal.getRegistros();
-        DefaultTableModel modelo = new DefaultTableModel();
-        modelo.setColumnIdentifiers(encabezado);
-        for (Peaje p : reg) {
-            modelo.addRow(new Object[]{
-                p.getPlaca(),
-                p.getTipo(),
-                p.getFecha(),
-                p.getValorCobrado()
-            });
-            
+        try (Connection con = DriverManager.getConnection(conexion.getUrl(),
+                conexion.getUsername(), conexion.getPassword())) {
+            DefaultTableModel modelo = new DefaultTableModel();
+            Statement stm = con.createStatement();
+            String query = "call mostrarInfo()";
+            ResultSet rs = stm.executeQuery(query);
+            ResultSetMetaData rsmt = rs.getMetaData();
+            for(int i =1; i<= rsmt.getColumnCount(); i++){
+                modelo.addColumn(rsmt.getColumnLabel(i));
+            }
+            while(rs.next()){
+                String placa = rs.getString("Placa");
+                String fecha = rs.getString("Fecha");
+                String tipoVehiculo = rs.getString("Tipo de vehiculo");
+                int valor = rs.getInt("Valor pagado");   
+                Object[] filas = new Object[rsmt.getColumnCount()];
+                for(int i = 1; i<=rsmt.getColumnCount(); i++){
+                    filas[i-1]= rs.getObject(i);
+                }
+                modelo.addRow(filas);
+            }
+            tableReporte.setModel(modelo);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(rootPane, e.toString());
         }
-        tableReporte.setModel(modelo);
     }
 
     /**
